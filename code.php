@@ -37,7 +37,7 @@ function send_email_verify ($name, $email, $verify_token)
     <h2>Você criou uma conta no nosso Clube de filmes</h2>
     <h5>Verifique o seu email para efetuar o login no link abaixo:</h5>
     <br/><br/>
-    <a href='http://saw.pt/clube/verify-email.php?token=$verify_token'>Clique aqui</a>
+    <a href='http://saw.pt/club/verify-email.php?token=$verify_token'>Clique aqui</a>
     ";
 
     $mail->Body = $email_template;
@@ -72,7 +72,7 @@ function send_password_reset($get_name, $get_email, $token)
     <h2>Olá,</h2>
     <h5>Resete a sua password clicando no link abaixo:</h5>
     <br/>
-    <a href='http://saw.pt/clube/change-password.php?token=$token&email=$get_email'>Clique aqui</a>
+    <a href='http://saw.pt/club/change-password.php?token=$token&email=$get_email'>Clique aqui</a>
     ";
 
     $mail->Body = $email_template;
