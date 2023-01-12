@@ -35,22 +35,30 @@
                 if(in_array($fileType, $allowTypes))
                 {
                     $image = $_FILES['image_upload']['tmp_name'];
-                    $imgContent = addslashes(file_get_contents($image));
+                    $imgContent = file_get_contents($image);
 
-                    $filme_query = "INSERT INTO filmes (name, description, price, category, image) VALUES ('$name', '$description', '$price', '$category', '$imgContent')"; 
-                    $filme_query_run = mysqli_query($con, $filme_query);
+                    $query = $con->prepare("INSERT INTO filmes (name, description, price, category, image) VALUES (?, ?, ?, ?, ?)");
+                    $query->bind_param('ssiss', $name, $description, $price, $category, $imgContent);
 
-                    if(!$filme_query_run)
-                    {
-                        $_SESSION['status'] = "Ocorreu um erro ao adicionar o filme";
-                        header("Location: ../views/filmes.php");
-                        exit(0);
-                    }
-                    else
+
+                    // $filme_query = "INSERT INTO filmes (name, description, price, category, image) VALUES ('$name', '$description', '$price', '$category', '$imgContent')"; 
+                    // $filme_query_run = mysqli_query($con, $filme_query);
+
+                    if($query -> execute())
                     {
                         $_SESSION['status'] = "Filme adicionado com sucesso!";
                         header("Location: ../views/filmes.php");
                         exit(0);
+
+                        $query -> close();
+                    }
+                    else
+                    {
+                        $_SESSION['status'] = "Ocorreu um erro ao adicionar o filme";
+                        header("Location: ../views/filmes.php");
+                        exit(0);
+
+                        $query -> close();
                     }
                 }
             }
@@ -92,24 +100,29 @@
                 if(in_array($fileType, $allowTypes))
                 {
                     $image = $_FILES['image_upload']['tmp_name'];
-                    $imgContent = addslashes(file_get_contents($image));
+                    $imgContent = file_get_contents($image);
 
-                
-                    // Registar user
-                    $update_filme_query = "UPDATE filmes SET name='$name', description='$description', price='$price', category='$category', state='$state', image='$imgContent' WHERE id='$id'"; 
-                    $update_filme_query_run = mysqli_query($con, $update_filme_query);
+                    $query = $con->prepare("UPDATE filmes SET name=?, description=?, price=?, category=?, state=?, image=? WHERE id=?");
+                    $query -> bind_param('ssisssi', $name, $description, $price, $category, $state, $imgContent, $id);
+                    
+                    // $update_filme_query = "UPDATE filmes SET name='$name', description='$description', price='$price', category='$category', state='$state', image='$imgContent' WHERE id='$id'"; 
+                    // $update_filme_query_run = mysqli_query($con, $update_filme_query);
 
-                    if(!$update_filme_query_run)
-                    {
-                        $_SESSION['status'] = "Ocorreu um erro ao adicionar o filme";
-                        header("Location: ../views/filmes.php");
-                        exit(0);
-                    }
-                    else
+                    if($query -> execute())
                     {
                         $_SESSION['status'] = "Filme editado com sucesso!";
                         header("Location: ../views/filmes.php");
                         exit(0);
+
+                        $query -> close();
+                    }
+                    else
+                    {
+                        $_SESSION['status'] = "Ocorreu um erro ao adicionar o filme";
+                        header("Location: ../views/filmes.php");
+                        exit(0);
+
+                        $query -> close();
                     }
                 }
             }

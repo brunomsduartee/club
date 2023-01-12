@@ -14,20 +14,27 @@
         }
         else
         {
-            $genero_query = "INSERT INTO generos (name) VALUES ('$gen_name')"; 
-            $genero_query_run = mysqli_query($con, $genero_query);
+            $genero_query = $con -> prepare("INSERT INTO generos (name) VALUES (?)");
+            $genero_query -> bind_param('s', $gen_name);
 
-            if(!$genero_query_run)
-            {
-                $_SESSION['status'] = "Ocorreu um erro a inserir o gênero";
-                header("Location: ../views/generos.php");
-                exit(0);
-            }
-            else
+            // $genero_query = "INSERT INTO generos (name) VALUES ('$gen_name')"; 
+            // $genero_query_run = mysqli_query($con, $genero_query);
+
+            if($genero_query -> execute())
             {
                 $_SESSION['status'] = "Gênero adicionado com sucesso!";
                 header("Location: ../views/generos.php");
                 exit(0);
+
+                $genero_query -> close();
+            }
+            else
+            {
+                $_SESSION['status'] = "Ocorreu um erro a inserir o gênero";
+                header("Location: ../views/generos.php");
+                exit(0);
+
+                $genero_query -> close();
             }
         }
     }
@@ -51,7 +58,7 @@
 
             if(mysqli_num_rows($get_generos_query_run) > 0)
             {
-                $_SESSION['status'] = "Erro! Existem filmes com este gênero!";
+                $_SESSION['status'] = "Erro! Existe pelo menos um filme com este gênero!";
                 header("Location: ../views/generos.php");
                 exit(0);
             }

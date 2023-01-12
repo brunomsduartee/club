@@ -10,7 +10,7 @@ include('../../check-session.php');
 <br>
 <div class="text-center">
   <br>
-  <h2 class="text-center">Alugueres Ativos</h2>
+  <h2 class="text-center">Alugueres</h2>
   <br>
   <?php
     if(isset($_SESSION['status']))
@@ -81,7 +81,7 @@ include('../../check-session.php');
           {
           ?> 
             <td>
-              <form action="./controllers/aluguer.php" method="POST">
+              <form action="../controllers/aluguerController.php" method="POST">
                 <div class=" mb-3" type="hidden">
                     <input type="hidden" name="id_aluguer" class="form-control" value="<?= $row['id'];?>">
                     <input type="hidden" name="id_filme" class="form-control" value="<?= $row['id_filme'];?>">

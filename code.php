@@ -378,22 +378,40 @@ else if (isset($_POST['reset_pass_btn']))
     {
         if(!empty($token) or !empty($new_password) or !empty($confirm_password))
         {
-            //Verificação do token
-            $check_token ="SELECT verify_token FROM users WHERE verify_token='$token' LIMIT 1";
-            $check_token_run = mysqli_query($con, $check_token);
 
-            if(mysqli_num_rows($check_token_run) > 0)
+            $check_token = $con -> prepare("SELECT verify_token FROM users WHERE verify_token= ? ");
+            $check_token -> bind_param('s', $token);
+            $check_token -> execute();
+            $check_token -> store_result();
+            $check_token -> bind_result($verify_token);
+            $check_token -> fetch();
+            //Verificação do token
+            // $check_token ="SELECT verify_token FROM users WHERE verify_token='$token'";
+            // $check_token_run = mysqli_query($con, $check_token);
+
+            if($check_token -> num_rows > 0)
             {
                 if($new_password == $confirm_password)
                 {
-                    $update_password = "UPDATE users SET password='$new_password' WHERE verify_token='$token' LIMIT 1";
-                    $update_password_run = mysqli_query($con, $update_password);
+                    $update_pasword = $con -> prepare("UPDATE users SET password= ? WHERE verify_token = ?");
+                    $update_pasword -> bind_param('ss', $new_password, $token);
+                    
 
-                    if($update_password_run)
+                    // $update_password = "UPDATE users SET password='$new_password' WHERE verify_token='$token' LIMIT 1";
+                    // $update_password_run = mysqli_query($con, $update_password);
+
+                    if($update_pasword -> execute())
                     {
+                        $update_pasword -> close();
                         $new_token = md5(rand());
-                        $update_to_new_token = "UPDATE users SET verify_token='$new_token' WHERE verify_token='$token' LIMIT 1";
-                        $update_to_new_token_run = mysqli_query($con, $update_to_new_token);
+
+                        $update_to_new_token = $con -> prepare("UPDATE users SET verify_token='$new_token' WHERE verify_token= ?");
+                        $update_to_new_token -> bind_param('s', $token);
+                        $update_to_new_token -> execute();
+                        $update_to_new_token -> close();
+
+                            // $update_to_new_token = "UPDATE users SET verify_token='$new_token' WHERE verify_token='$token' LIMIT 1";
+                            // $update_to_new_token_run = mysqli_query($con, $update_to_new_token);
 
                         $_SESSION['status'] = "Password alterada com sucesso";
                         header("Location: login.php");
@@ -458,26 +476,28 @@ else if (isset($_POST['alterarBtn']))
                 if(in_array($fileType, $allowTypes))
                 {
                     $image = $_FILES['image_update']['tmp_name'];
-                    $imgContent = addslashes(file_get_contents($image));
+                    $imgContent = file_get_contents($image);
 
-                
-                    // Update Nome e Foto
-                    $query = "UPDATE users SET name='$new_name', image='$imgContent' WHERE email='$email'"; 
-                    $query_run = mysqli_query($con, $query);
+                    $change_query = $con -> prepare("UPDATE users SET name = ?, image = ? WHERE email = ? ");
+                    $change_query -> bind_param('sss', $new_name, $imgContent, $email);
 
-                    if($query_run)
+                    if($change_query -> execute())
                     {   
-                        session_destroy();
-
                         $_SESSION['status'] = "Dados alterados com sucesso!";
                         header("Location: login.php");
                         exit(0);
+
+                        session_destroy();
+                        
+                        $change_query -> close();
                     }
                     else
                     {
                         $_SESSION['status'] = "Ocorreu um erro :c";
                         header("Location: dashboard.php");
                         exit(0);
+
+                        $change_query -> close();
                     }
                 } 
                 else

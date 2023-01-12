@@ -23,7 +23,7 @@ include('../../check-session.php');
     }
   ?>
 </div>
-  <div style="margin: 100px">
+  <div style="margin: 100px;">
   <table class="table table-striped">
     <thead class="thead-dark">
       <tr>
@@ -54,7 +54,7 @@ include('../../check-session.php');
         <tr>
           <td><?=$row["id"]?></td>
           <td><?=$row["name"]?></td>
-          <td><?php echo '<img class="card-img" style="align-items: center; width: 90px; height: 100px;" src="data:image;base64,'.base64_encode( $row['image']).'" alt="Foto">'; ?> </td>
+          <td><?php echo '<img class="card-img" style="align-items: center; width: 90px; height: 110px;" src="data:image;base64,'.base64_encode( $row['image']).'" alt="Foto">'; ?> </td>
           <td><?=$row["description"]?></td>
           <td><?=$row["price"]?></td>
           <td><?=$row["state"]?></td>

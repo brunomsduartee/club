@@ -11,7 +11,7 @@ if(isset($_POST['alugarFilme']))
     $price = $_POST['price'];
     $email_user = $_SESSION['auth_user']['email'];
 
-    if(empty($name) && empty($id) && empty($price) && empty($email_user))
+    if(empty($name) or empty($id) or empty($price) or empty($email_user))
     {
         $_SESSION['status'] = "Ocorreu um erro ao identificar o filme pretendido";
         header("Location: ../index.php");

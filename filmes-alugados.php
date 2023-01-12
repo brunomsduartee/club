@@ -11,7 +11,6 @@ include('./dbcon.php');
 <div class="text-center">
   <br>
   <h2 class="text-center">Alugueres Ativos</h2>
-  <br>
   <?php
     if(isset($_SESSION['status']))
     {
@@ -24,7 +23,6 @@ include('./dbcon.php');
     }
   ?>
 </div>
-  <br>
   <div style="margin: 100px">
   <table class="table table-striped">
     <thead class="thead-dark">
