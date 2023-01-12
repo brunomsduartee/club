@@ -30,20 +30,31 @@ include('./dbcon.php');
                     while ($row = $filme_query_run -> fetch_assoc())
                     {
             ?>
-                        <div class="card h-50" style="width: 15rem;" style="style.css">
-                            <?php echo '<img class="card-img-top " src="data:image;base64,'.base64_encode( $row['image']).'" alt="Imagem não disponível" style="width: 50px, height: 50px;" >'; ?> 
+                    <div style="margin: 12px; width: 15rem; border-style: solid; border-radius: 10px; border-color: lightgray;">
+                        <div class="card h-50" style="" >
+                        <div style="padding: 0px; justify-content: center; display: flex; margin-top: 5px">
+                            <?php echo '<img class="card-img" style="align-items: center;" src="data:image;base64,'.base64_encode( $row['image']).'" alt="Imagem não disponível">'; ?> 
+                        </div>
+                        <div style="text-align: center; font-size: 10px; height: 100px;">
                             <div class="card-body">
-                                <h5 class="card-title"><?= $row["name"]?></h5>
-                                <p class="card-text"><?= $row["description"]?></p>
+                                <h5 style="font-size: 20px; height: 75px" class="card-title"><?= $row["name"]?></h5>
                             </div>
+                        </div>
+                            <div style="width: 200px;">
                             <ul class="list-group list-group-flush">
                                 <li class="list-group-item"><strong>Preço:</strong> <?= $row["price"]?></li>
                                 <li class="list-group-item"><strong>Estado:</strong> <?= $row["state"]?></li>
                                 <li class="list-group-item"><strong>Gênero:</strong> <?= $row["category"]?></li>
                             </ul>
+                            </div>
                             <?php  if(isset($_SESSION['authenticated']) &&  $row["state"] == "Indisponível"): ?>
                                 <div class="card-body">
                                     <h10 class="alert alert-danger">Filme indisponível</h10>
+                                </div>
+                            <?php endif ?>
+                            <?php  if(isset($_SESSION['authenticated']) &&  $row["state"] == "Brevemente"): ?>
+                                <div class="card-body">
+                                    <h10 class="alert alert-warning" style="margin-left: 23px">Brevemente...</h10>
                                 </div>
                             <?php endif ?>
                             <?php  if(isset($_SESSION['authenticated']) &&  $row["state"] == "Disponível"): ?>
@@ -54,12 +65,15 @@ include('./dbcon.php');
                                         <input type="hidden" name="price" class="form-control" value="<?= $row['price'];?>">
                                         <input type="hidden" name="state" class="form-control" value="<?= $row['state'];?>">
                                     </div>
-                                    <div class="card-body">
-                                    <button type="submit" class="btn btn-success" name="alugarFilme">Alugar</button>
-                                </div>
+                                    
+
+                                        <button type="submit"  name="alugarFilme" style="background-color: green; border: none; color: white; border-radius: 4px; width: 208px; height: 40px; align-items: center; margin-bottom: 5px">Alugar</button>
+
+
                                 </form>
                             <?php endif ?>
                         </div>
+                    </div>
                         <?php
                         $count=$count+1;
                     }

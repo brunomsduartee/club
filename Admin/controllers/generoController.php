@@ -35,6 +35,7 @@
     if(isset($_POST['deleteGenero']))
     {
         $id = $_POST['id_genero'];
+        $gen = $_POST['nome_genero'];
 
         if(!isset($id))
         {
@@ -44,31 +45,46 @@
         }
         else
         {
-            $select_query = "SELECT * FROM generos WHERE id='$id'";
-            $select_query_run = mysqli_query($con, $select_query);
+            
+            $get_generos_query = "SELECT category FROM filmes WHERE category='$gen'";
+            $get_generos_query_run = mysqli_query($con, $get_generos_query);
 
-            if(!mysqli_num_rows($select_query_run) > 0)
+            if(mysqli_num_rows($get_generos_query_run) > 0)
             {
-                $_SESSION['status'] = "Não existe nenhum genero com este id";
+                $_SESSION['status'] = "Erro! Existem filmes com este gênero!";
                 header("Location: ../views/generos.php");
                 exit(0);
             }
             else
             {
-                $delete_query = "DELETE FROM generos WHERE id='$id'";
-                $delete_query_run = mysqli_query($con, $delete_query);
-                
-                if(!$delete_query_run)
+
+                $select_query = "SELECT * FROM generos WHERE id='$id'";
+                $select_query_run = mysqli_query($con, $select_query);
+
+
+                if(!mysqli_num_rows($select_query_run) > 0)
                 {
-                    $_SESSION['status'] = "Ocorreu um erro ao eliminar o genero";
+                    $_SESSION['status'] = "Não existe nenhum genero com este id";
                     header("Location: ../views/generos.php");
                     exit(0);
                 }
                 else
                 {
-                    $_SESSION['status'] = "Gênero eliminado com sucesso!";
-                    header("Location: ../views/generos.php");
-                    exit(0);
+                    $delete_query = "DELETE FROM generos WHERE id='$id'";
+                    $delete_query_run = mysqli_query($con, $delete_query);
+                    
+                    if(!$delete_query_run)
+                    {
+                        $_SESSION['status'] = "Ocorreu um erro ao eliminar o genero";
+                        header("Location: ../views/generos.php");
+                        exit(0);
+                    }
+                    else
+                    {
+                        $_SESSION['status'] = "Gênero eliminado com sucesso!";
+                        header("Location: ../views/generos.php");
+                        exit(0);
+                    }
                 }
             }
         }

@@ -25,6 +25,7 @@ include('./dbcon.php');
   ?>
 </div>
   <br>
+  <div style="margin: 100px">
   <table class="table table-striped">
     <thead class="thead-dark">
       <tr>
@@ -32,9 +33,10 @@ include('./dbcon.php');
         <th>Filme</th>
         <th>Preço</th>        
         <th>Data Requisição</th>
-        <th></th>
+        <th>Ações</th>
       </tr>
     </thead>
+    </div>
     <?php
 
     $email_user = $_SESSION['auth_user']['email'];
@@ -74,7 +76,7 @@ include('./dbcon.php');
 <br>
 <div class="text-center">
   <br>
-  <h2 class="text-center">Historico de filmes alugados</h2>
+  <h2 class="text-center">Histórico de filmes alugados</h2>
   <br>
   <?php
     if(isset($_SESSION['status']))
@@ -89,6 +91,7 @@ include('./dbcon.php');
   ?>
 </div>
   <br>
+  <div style="margin: 100px">
   <table class="table table-striped">
     <thead class="thead-dark">
       <tr>
@@ -99,6 +102,7 @@ include('./dbcon.php');
         <th>Data de Devolução</th>
       </tr>
     </thead>
+    </div>
     <?php
 
     $email_user = $_SESSION['auth_user']['email'];

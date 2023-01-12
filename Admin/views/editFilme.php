@@ -15,7 +15,7 @@ include('../../check-session.php');
                     if(isset($_SESSION['status']))
                     {
                         ?>
-                        <div class="alert alert-success">
+                        <div class="alert alert-success" style="margin: 100px">
                             <h5><?= $_SESSION['status']; ?></h5>
                         </div>
                         <?php
@@ -45,7 +45,7 @@ include('../../check-session.php');
                             </div>
                             <div class=" mb-3">
                                 <label for="">Selecionar o estado</label>
-                               <select class="form-select" aria-label="Default select example" name="state">
+                               <select class="form-select" aria-label="Default select example" name="state" required>
                                     <option value="Disponível">Disponível</option>
                                     <option value="Indisponível">Indisponível</option>
                                     <option value="Brevemente">Brevemente</option>
@@ -53,13 +53,29 @@ include('../../check-session.php');
                             </div>
                             </div>
                             <div class=" mb-3">
-                                <label for="">Gênero</label>
-                                <input type="text" name="category" class="form-control" value="<?php echo $_POST['category']?>"> 
+                                <label>Gênero:</label>
+                                <select id="category" name="category" required>
+                                    <option disabled required selected>Selecione o Gênero</option>
+                                    <?php
+
+                                    $get_generos_query ="SELECT * from generos";
+                                    $get_generos_query_run = mysqli_query($con, $get_generos_query);
+                                    
+                                    if($get_generos_query_run -> num_rows > 0)
+                                    {
+                                        while ($row = $get_generos_query_run -> fetch_assoc())
+                                        { ?>
+                                        <option value="<?=$row["name"]?>"><?=$row["name"]?></option>
+                                        <?php
+                                        }
+                                    }
+                                    ?>
+                                </select>
                             </div>
                             <div class="mb-3">
                                 <label for="">Escolha a foto do filme</label>
                                 <br>
-                                <input type="file" name="image_upload" accept=".png,.jpg,.jpeg">
+                                <input type="file" name="image_upload" accept=".png,.jpg,.jpeg" required>
                             </div>
                             <div class="form-group">
                                 <button type="submit" class="btn btn-success" name="editFilme" style="height:40px">Submeter Alterações</button>

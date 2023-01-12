@@ -37,7 +37,7 @@ function send_email_verify ($name, $email, $verify_token)
     <h2>Você criou uma conta no nosso Clube de filmes</h2>
     <h5>Verifique o seu email para efetuar o login no link abaixo:</h5>
     <br/><br/>
-    <a href='http://saw.pt/clube/verify-email.php?token=$verify_token'>Clique aqui</a>
+    <a href='http://saw.pt/club/verify-email.php?token=$verify_token'>Clique aqui</a>
     ";
 
     $mail->Body = $email_template;
@@ -72,7 +72,7 @@ function send_password_reset($get_name, $get_email, $token)
     <h2>Olá,</h2>
     <h5>Resete a sua password clicando no link abaixo:</h5>
     <br/>
-    <a href='http://saw.pt/clube/change-password.php?token=$token&email=$get_email'>Clique aqui</a>
+    <a href='http://saw.pt/club/change-password.php?token=$token&email=$get_email'>Clique aqui</a>
     ";
 
     $mail->Body = $email_template;
@@ -91,17 +91,28 @@ if (isset($_POST['registerBtn']))
     $pattern_nome =  '/^[A-Za-z]{3,}$/';
 
     // Existe email
-    $check_email_query = "SELECT email FROM users WHERE email = '$email' LIMIT 1";
-    $check_email_query_run = mysqli_query($con, $check_email_query);
+    // $check_email_query = "SELECT email FROM users WHERE email = '$email' LIMIT 1";
+    // $check_email_query_run = mysqli_query($con, $check_email_query);
 
-    if(mysqli_num_rows($check_email_query_run) > 0)
+    $query = $con -> prepare("SELECT email FROM users WHERE email = ? LIMIT 1");
+    $query -> bind_param('s', $email);
+    $query -> execute();
+    $query -> store_result();
+    
+    
+
+    if($query -> num_rows > 0)
     {
         $_SESSION['status'] = "Email já existente";
         header("Location: login.php");
         exit(0);
+        
+        $query -> close();
     }
     else
     {
+        $query -> close();
+
         if(preg_match($pattern_nome, $name))
         {
             if(filter_var($email, FILTER_VALIDATE_EMAIL))
@@ -118,26 +129,29 @@ if (isset($_POST['registerBtn']))
                         if(in_array($fileType, $allowTypes))
                         {
                             $image = $_FILES['image_upload']['tmp_name'];
-                            $imgContent = addslashes(file_get_contents($image));
+                            $imgContent = file_get_contents($image);
 
                         
-                            // Registar user
-                            $query = "INSERT INTO users (name, email, password, verify_token, image) VALUES ('$name', '$email', '$password', '$verify_token', '$imgContent')"; 
-                            $query_run = mysqli_query($con, $query);
-
-                            if($query_run)
+                            $stmt = $con->prepare("INSERT INTO users (name, email, password, verify_token, image) VALUES (?, ?, ?, ?, ?)");
+                            $stmt-> bind_param("sssss", $name, $email, $password, $verify_token, $imgContent);
+                            
+                            if ($stmt-> execute()) 
                             {
                                 send_email_verify("$name", "$email", "$verify_token");
                                 
                                 $_SESSION['status'] = "Registo com sucesso! Verifique o seu email.";
                                 header("Location: register.php");
                                 exit(0);
+
+                                $stmt-> close();
                             }
                             else
                             {
                                 $_SESSION['status'] = "Ocorreu um erro :c";
                                 header("Location: register.php");
                                 exit(0);
+
+                                $stmt-> close();
                             }
                         } 
                         else
@@ -193,21 +207,29 @@ else if (isset($_POST['loginBtn']))
         $email = mysqli_real_escape_string($con, $_POST['email']);
         $password = mysqli_real_escape_string($con, md5($_POST['password']));
 
-        $login_query = "SELECT * FROM users WHERE email='$email' AND password='$password' LIMIT 1";
-        $login_query_run = mysqli_query($con, $login_query);
+        $login_query = $con -> prepare("SELECT name, email, image, verify_status, role FROM users WHERE email= ? AND password= ?  LIMIT 1");
+        $login_query -> bind_param('ss', $email, $password);
+        $login_query -> execute();
+        $login_query -> store_result();
+        $login_query -> bind_result($name, $email, $image, $verify_status, $role);
+        $login_query->fetch();
+        // $login_query = "SELECT * FROM users WHERE email='$email' AND password='$password' LIMIT 1";
+        // $login_query_run = mysqli_query($con, $login_query);
 
-        if(mysqli_num_rows($login_query_run) > 0)
+        if($login_query -> num_rows > 0)
         {
-            $row = mysqli_fetch_array($login_query_run);
+            
 
-            if($row['verify_status'] == "1")
+            if($verify_status == 1)
             {
+                $login_query -> close();
+
                 $_SESSION['authenticated'] = TRUE;
                 $_SESSION['auth_user'] = [
-                    'name' => $row['name'],
-                    'email' => $row['email'],
-                    'image' => $row['image'],
-                    'role' => $row['role'],
+                    'name' => $name,
+                    'email' => $email,
+                    'image' => $image,
+                    'role' => $role,
                 ];
 
                 if(isset($_REQUEST['rememberMe']))
@@ -222,6 +244,8 @@ else if (isset($_POST['loginBtn']))
             }
             else
             {
+                $login_query -> close();
+
                 $_SESSION['status'] = "Verifique o seu email para fazer o login";
                 header("Location: login.php");
                 exit(0);                
@@ -248,29 +272,37 @@ else if (isset($_POST['resendBtn']))
     {
         $email = mysqli_real_escape_string($con, $_POST['email']);
 
-        $check_email_query = "SELECT * FROM users WHERE email='$email' LIMIT 1";
-        $check_email_query_run = mysqli_query($con, $check_email_query);
+        // $check_email_query = "SELECT * FROM users WHERE email='$email' LIMIT 1";
+        // $check_email_query_run = mysqli_query($con, $check_email_query);
 
-        if(mysqli_num_rows($check_email_query_run) > 0)
+        $resend_query = $con -> prepare("SELECT name, email, verify_status, verify_token FROM users WHERE email= ? LIMIT 1");
+        $resend_query -> bind_param('s', $email);
+        $resend_query -> execute();
+        $resend_query -> store_result();
+        $resend_query -> bind_result($name, $email, $verify_status, $verify_token);
+        $resend_query->fetch();
+
+        if($resend_query -> num_rows > 0)
         {
-            $row = mysqli_fetch_array($check_email_query_run);
-            if($row['verify_status'] == '0')
-            {
-                $name = $row['name'];
-                $verify_token = $row['verify_token'];
-                $email = $row['email'];
+            
 
-                send_email_verify($name, $email,$verify_token);
+            if($verify_status == 0)
+            {
+                send_email_verify($name, $email, $verify_token);
 
                 $_SESSION['status'] = "Verificação enviada, verifique o seu email";
                 header("Location: login.php");
                 exit(0);
+
+                $resend_query -> close();
             }
             else
             {
                 $_SESSION['status'] = "O email inserido já está verificado, faça login!";
                 header("Location: login.php");
                 exit(0);
+
+                $resend_query -> close();
             }
         }
         else
@@ -295,12 +327,19 @@ else if (isset($_POST['send_email_recover_password_btn']))
     $token = md5(rand());
 
 
-    $check_email = "SELECT * FROM users WHERE email='$email' LIMIT 1";
-    $check_email_run = mysqli_query($con, $check_email);
+    // $check_email = "SELECT * FROM users WHERE email='$email' LIMIT 1";
+    // $check_email_run = mysqli_query($con, $check_email);
 
-    if(mysqli_num_rows($check_email_run) > 0)
+    $recuperacao_query = $con -> prepare("SELECT name, email, verify_status, verify_token FROM users WHERE email= ? LIMIT 1");
+    $recuperacao_query -> bind_param('s', $email);
+    $recuperacao_query -> execute();
+    $recuperacao_query -> store_result();
+    $recuperacao_query -> bind_result($name, $email, $verify_status, $verify_token);
+    $recuperacao_query->fetch();
+
+
+    if($recuperacao_query -> num_rows > 0)
     {
-        $row = mysqli_fetch_array($check_email_run);
 
         $get_name = $row['name'];
         $get_email = $row['email'];

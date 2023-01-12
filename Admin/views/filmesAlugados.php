@@ -1,6 +1,6 @@
 <?php
 session_start();
-$page_title = "Gêneros";
+$page_title = "Filmes Alugados";
 include('./../includes/header.php');
 include('./../includes/navbar.php');
 include('./../../dbcon.php');
@@ -16,7 +16,7 @@ include('../../check-session.php');
     if(isset($_SESSION['status']))
     {
         ?>
-        <div class="alert alert-success">
+        <div class="alert alert-success" style="margin: 100px">
             <h5><?= $_SESSION['status']; ?></h5>
         </div>
         <?php
@@ -24,7 +24,7 @@ include('../../check-session.php');
     }
   ?>
 </div>
-  <br>
+<div style="margin: 100px">
   <table class="table table-striped">
     <thead class="thead-dark">
       <tr>
@@ -35,9 +35,10 @@ include('../../check-session.php');
         <th>Estado</th>
         <th>Data Requisição</th>
         <th>Data Devolução</th>
-        <th></th>
+        <th>Ações</th>
       </tr>
     </thead>
+    </div>
     <?php
 
     $filmes_alugados_query = "SELECT * FROM filmes_alugados";
@@ -48,27 +49,56 @@ include('../../check-session.php');
     {
       while ($row = $filmes_alugados_query_run -> fetch_assoc())
       {
-        $esta_alugado = $row["esta_alugado"];
-        echo $esta_alugado;
+  
         ?>                
         <tr>
           <td><?=$row["id"]?></td>
           <td><?=$row["nome_filme"]?></td>
           <td><?=$row["preco_filme"]?></td>
           <td><?=$row["email_user"]?></td>
-          <?php if ($esta_alugado = 1) {?><td>fodasse</td><?php } else { ?><td>Devolvido</td><?php } ?>
+          <?php if ($row["esta_alugado"] == 1)
+          { ?>
+            <td>Ativo</td>
+          <?php
+          } ?> 
+          <?php if ($row["esta_alugado"] == 0)
+          { ?>
+            <td>Devolvido</td>
+          <?php
+          } ?> 
           <td><?=$row["data_req"]?></td>
-          <td>
-            <form action="./controllers/aluguer.php" method="POST">
-              <div class=" mb-3" type="hidden">
-                  <input type="hidden" name="id_aluguer" class="form-control" value="<?= $row['id'];?>">
-                  <input type="hidden" name="id_filme" class="form-control" value="<?= $row['id_filme'];?>">
-              </div>
-              <div class="form-group">
-                <button class="btn btn-secondary btn-sm" type="submit" name="devolverFilme" style="widht: 20px;" >Devolver</button>
-              </div>
-            </form>
-          </td>
+          
+          <?php if ($row["data_dev"] == NULL)
+          { ?>
+            <td>----------</td>
+          <?php
+          } else 
+          {?> 
+            <td><?=$row["data_dev"]?></td>
+          <?php     
+          } ?> 
+          <?php if ($row["esta_alugado"] == 1)
+          {
+          ?> 
+            <td>
+              <form action="./controllers/aluguer.php" method="POST">
+                <div class=" mb-3" type="hidden">
+                    <input type="hidden" name="id_aluguer" class="form-control" value="<?= $row['id'];?>">
+                    <input type="hidden" name="id_filme" class="form-control" value="<?= $row['id_filme'];?>">
+                </div>
+                <div>
+                  <button class="btn btn-secondary btn-sm" type="submit" name="devolverFilme" style="font-size: 12px" >Devolver</button>
+                </div>
+              </form>
+            </td>
+          <?php
+          } ?>
+          <?php if ($row["esta_alugado"] == 0)
+          {
+          ?> 
+            <td>-</td>
+          <?php
+          } ?>
         </tr>
         <?php
         $count=$count+1;

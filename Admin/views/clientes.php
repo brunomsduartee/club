@@ -5,21 +5,36 @@ include('./../includes/header.php');
 include('./../includes/navbar.php');
 include('./../../dbcon.php');
 include('../../check-session.php');
+
 ?>
+
 <br>
 <div class="justify-content-center">
-  <h2 class="text-center">Todos os Clientes</h2>
+<h2 class="text-center">Todos os Clientes</h2>
+ <?php
+    if(isset($_SESSION['status']))
+    {
+        ?>
+        <div class="alert alert-success" style="margin: 100px">
+            <h5><?= $_SESSION['status']; ?></h5>
+        </div>
+        <?php
+        unset($_SESSION['status']);
+    }
+  ?>
 </div>
-  <br>
-  <table class="table table-striped">
-    <thead class="thead-dark">
-      <tr>
+  <div style="margin: 100px">
+    <table class="table table-striped">
+      <thead class="thead-dark">
+       <tr>
         <th>Id</th>
         <th>Nome </th>
         <th>Email</th>
         <th>Role</th>
       </tr>
     </thead>
+  </div>
+  
     <?php
     
     $user_query = "SELECT * FROM users WHERE role='user'";

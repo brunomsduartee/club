@@ -11,12 +11,11 @@ include('../../check-session.php');
 <div class="text-center">
   <br>
   <h2 class="text-center">Gêneros</h2>
-  <br>
   <?php
     if(isset($_SESSION['status']))
     {
         ?>
-        <div class="alert alert-success">
+        <div class="alert alert-success" style="margin: 100px">
             <h5><?= $_SESSION['status']; ?></h5>
         </div>
         <?php
@@ -24,15 +23,16 @@ include('../../check-session.php');
     }
   ?>
 </div>
-  <br>
+  <div style="margin: 100px">
   <table class="table table-striped">
     <thead class="thead-dark">
       <tr>
         <th>Id</th>
         <th>Nome</th>
-        <th></th>
+        <th>Ações</th>
       </tr>
     </thead>
+    </div>
     <?php
     
     $genero_query = "SELECT * FROM generos";
@@ -51,6 +51,7 @@ include('../../check-session.php');
         <form action="../controllers/generoController.php" method="POST">
           <div class=" mb-3" type="hidden">
               <input type="hidden" name="id_genero" class="form-control" value="<?= $row['id'];?>">
+              <input type="hidden" name="nome_genero" class="form-control" value="<?= $row['name'];?>">
           </div>
           <div class="form-group">
             <button type="submit" name="deleteGenero" >Apagar</button>

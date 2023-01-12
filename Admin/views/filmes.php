@@ -11,12 +11,11 @@ include('../../check-session.php');
 <div class="text-center">
   <br>
   <h2 class="text-center">Filmes</h2>
-  <br>
   <?php
     if(isset($_SESSION['status']))
     {
         ?>
-        <div class="alert alert-success">
+        <div class="alert alert-success" style="margin: 100px">
             <h5><?= $_SESSION['status']; ?></h5>
         </div>
         <?php
@@ -24,21 +23,23 @@ include('../../check-session.php');
     }
   ?>
 </div>
-  <br>
+  <div style="margin: 100px">
   <table class="table table-striped">
     <thead class="thead-dark">
       <tr>
         <th>Id</th>
-        <th>Name</th>
-        <th>Description</th>
-        <th>price</th>
-        <th>State</th>
-        <th>Category</th>
-        <th>Upload Date</th>
-        <th></th>
+        <th>Nome</th>
+        <th>Imagem</th>
+        <th>Descrição</th>
+        <th>Preço</th>
+        <th>Estado</th>
+        <th>Gênero</th>
+        <th>Upload</th>
+        <th>Ações</th>
         <th></th>
       </tr>
     </thead>
+    </div>
     <?php
     
     $filme_query = "SELECT * FROM filmes";
@@ -53,6 +54,7 @@ include('../../check-session.php');
         <tr>
           <td><?=$row["id"]?></td>
           <td><?=$row["name"]?></td>
+          <td><?php echo '<img class="card-img" style="align-items: center; width: 90px; height: 100px;" src="data:image;base64,'.base64_encode( $row['image']).'" alt="Foto">'; ?> </td>
           <td><?=$row["description"]?></td>
           <td><?=$row["price"]?></td>
           <td><?=$row["state"]?></td>
@@ -112,15 +114,15 @@ include('../../check-session.php');
         <div class="modal-body">
           <form  enctype='multipart/form-data' action="../controllers/filmeController.php" method="POST">
             <div class=" mb-3">
-              <label for="">Name</label>
+              <label for="">Nome</label>
               <input type="text" name="name" class="form-control">
             </div>
             <div class=" mb-3">
-              <label for="">Description</label>
+              <label for="">Descrição</label>
               <input type="text" name="description" class="form-control">
             </div>
             <div class=" mb-3">
-              <label for="">Price</label>
+              <label for="">Preço</label>
               <input type="text" name="price" class="form-control">
             </div>
             <div class=" mb-3">
@@ -130,9 +132,25 @@ include('../../check-session.php');
                 <option value="Brevemente">Brevemente</option>
               </select>
             </div>
-            <div class=" mb-3">
-              <label for="">Category</label>
-              <input type="text" name="category" class="form-control">
+            <div class="form-group">
+              <label>Gênero:</label>
+              <select id="category" name="category" required>
+                <option disabled selected>Selecione o Gênero</option>
+                <?php
+
+                  $get_generos_query ="SELECT * from generos";
+                  $get_generos_query_run = mysqli_query($con, $get_generos_query);
+                
+                  if($get_generos_query_run -> num_rows > 0)
+                  {
+                    while ($row = $get_generos_query_run -> fetch_assoc())
+                    { ?>
+                      <option value="<?=$row["name"]?>"><?=$row["name"]?></option>
+                    <?php
+                    }
+                  }
+                ?>
+              </select>
             </div>
             <div class="mb-3">
               <label for="">Escolha a foto do filme</label>

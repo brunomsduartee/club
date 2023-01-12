@@ -68,9 +68,9 @@
         $category = $_POST['category'];
         $state = $_POST['state'];
 
-        if(empty($name) && empty($description) && empty($price) && empty($category) && empty($state))
+        if($category == NULL or $name == NULL or $description == NULL or $price == NULL or $id == NULL or $state == NULL)
         {
-            $_SESSION['status'] = "Preencha todos os campos";
+            $_SESSION['status'] = "Erro! Preencha todos os campos";
             header("Location: ../views/filmes.php");
             exit(0);
         }
