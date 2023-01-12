@@ -341,15 +341,12 @@ else if (isset($_POST['send_email_recover_password_btn']))
     if($recuperacao_query -> num_rows > 0)
     {
 
-        $get_name = $row['name'];
-        $get_email = $row['email'];
-
-        $update_token = "UPDATE users SET verify_token='$token' WHERE email='$get_email' LIMIT 1";
+        $update_token = "UPDATE users SET verify_token='$token' WHERE email='$email' LIMIT 1";
         $update_token_run = mysqli_query($con, $update_token);
 
         if($update_token_run)
         {
-            send_password_reset($get_name, $get_email, $token);
+            send_password_reset($name, $email, $token);
             $_SESSION['status'] = "Email para resetar password enviado, verifique o seu email";
             header("Location: login.php");
             exit(0);
@@ -372,14 +369,14 @@ else if (isset($_POST['send_email_recover_password_btn']))
 else if (isset($_POST['reset_pass_btn']))
 {
     $email = mysqli_real_escape_string($con, $_POST['email']);
-    $new_password = mysqli_real_escape_string($con, $_POST['new_password']);
-    $confirm_password = mysqli_real_escape_string($con, $_POST['confirm_password']);
+    $new_password = mysqli_real_escape_string($con, md5($_POST['new_password']));
+    $confirm_password = mysqli_real_escape_string($con, md5($_POST['confirm_password']))    ;
 
     $token = mysqli_real_escape_string($con, $_POST['password_token']);
 
     if(!empty($token))
     {
-        if(!empty($token) && !empty($new_password) && !empty($confirm_password))
+        if(!empty($token) or !empty($new_password) or !empty($confirm_password))
         {
             //Verificação do token
             $check_token ="SELECT verify_token FROM users WHERE verify_token='$token' LIMIT 1";
