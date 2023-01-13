@@ -10,7 +10,7 @@ include('../../check-session.php');
 <br>
 <div class="text-center">
   <br>
-  <h2 class="text-center">Alugueres</h2>
+  <h2 class="text-center">Alugueres Ativos</h2>
   <br>
   <?php
     if(isset($_SESSION['status']))
@@ -34,14 +34,13 @@ include('../../check-session.php');
         <th>Utilizador</th>
         <th>Estado</th>
         <th>Data Requisição</th>
-        <th>Data Devolução</th>
         <th>Ações</th>
       </tr>
     </thead>
     </div>
     <?php
 
-    $filmes_alugados_query = "SELECT * FROM filmes_alugados";
+    $filmes_alugados_query = "SELECT * FROM filmes_alugados WHERE esta_alugado = 1";
     $filmes_alugados_query_run = mysqli_query($con, $filmes_alugados_query);
     $count = 1;
 
@@ -60,23 +59,8 @@ include('../../check-session.php');
           { ?>
             <td>Ativo</td>
           <?php
-          } ?> 
-          <?php if ($row["esta_alugado"] == 0)
-          { ?>
-            <td>Devolvido</td>
-          <?php
-          } ?> 
+          } ?>
           <td><?=$row["data_req"]?></td>
-          
-          <?php if ($row["data_dev"] == NULL)
-          { ?>
-            <td>----------</td>
-          <?php
-          } else 
-          {?> 
-            <td><?=$row["data_dev"]?></td>
-          <?php     
-          } ?> 
           <?php if ($row["esta_alugado"] == 1)
           {
           ?> 
@@ -99,6 +83,63 @@ include('../../check-session.php');
             <td>-</td>
           <?php
           } ?>
+        </tr>
+        <?php
+        $count=$count+1;
+      }
+    }
+    ?>
+  </table>
+  
+  <div class="text-center">
+  <br>
+  <h2 class="text-center">Histórico</h2>
+  <?php
+    if(isset($_SESSION['status']))
+    {
+        ?>
+        <div class="alert alert-success" style="margin: 100px">
+            <h5><?= $_SESSION['status']; ?></h5>
+        </div>
+        <?php
+        unset($_SESSION['status']);
+    }
+  ?>
+</div>
+<div style="margin: 100px">
+  <table class="table table-striped">
+    <thead class="thead-dark">
+      <tr>
+        <th>Id Aluguer</th>
+        <th>Filme</th>
+        <th>Preço</th>
+        <th>Utilizador</th>
+        <th>Estado</th>
+        <th>Data Requisição</th>
+        <th>Data Devolução</th>
+      </tr>
+    </thead>
+    </div>
+    <?php
+
+    $filmes_alugados_query = "SELECT * FROM filmes_alugados WHERE esta_alugado = 0";
+    $filmes_alugados_query_run = mysqli_query($con, $filmes_alugados_query);
+    $count = 1;
+
+    if($filmes_alugados_query_run -> num_rows > 0)
+    {
+      while ($row = $filmes_alugados_query_run -> fetch_assoc())
+      {
+  
+        ?>                
+        <tr>
+          <td><?=$row["id"]?></td>
+          <td><?=$row["nome_filme"]?></td>
+          <td><?=$row["preco_filme"]?></td>
+          <td><?=$row["email_user"]?></td>
+          <td>Devolvido</td>
+          <td><?=$row["data_req"]?></td>
+          <td><?= $row["data_dev"] ?></td>
         </tr>
         <?php
         $count=$count+1;

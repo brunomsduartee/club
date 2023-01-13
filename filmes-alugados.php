@@ -31,7 +31,6 @@ include('./dbcon.php');
         <th>Filme</th>
         <th>Preço</th>        
         <th>Data Requisição</th>
-        <th>Ações</th>
       </tr>
     </thead>
     </div>
@@ -52,17 +51,6 @@ include('./dbcon.php');
           <td><?=$row["nome_filme"]?></td>
           <td><?=$row["preco_filme"]?></td>
           <td><?=$row["data_req"]?></td>
-          <td>
-            <form action="./controllers/aluguer.php" method="POST">
-              <div class=" mb-3" type="hidden">
-                  <input type="hidden" name="id_aluguer" class="form-control" value="<?= $row['id'];?>">
-                  <input type="hidden" name="id_filme" class="form-control" value="<?= $row['id_filme'];?>">
-              </div>
-              <div class="form-group">
-                <button class="btn btn-secondary btn-sm" type="submit" name="devolverFilme" style="widht: 20px;" >Devolver</button>
-              </div>
-            </form>
-          </td>
         </tr>
         <?php
         $count=$count+1;
@@ -70,6 +58,7 @@ include('./dbcon.php');
     }
     ?>
   </table>
+  </div>
   <br>
 <br>
 <div class="text-center">
