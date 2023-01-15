@@ -21,6 +21,13 @@ if(!empty($_SESSION['start_time']))
         $_SESSION['start_time'] = time();
     }
 }
+
+if(isset($_SESSION['authenticated']))
+    {
+        $_SESSION['status'] = "está logado.";
+        header("Location: dashboard.php");
+        exit(0); 
+    }
 ?>
 
 <div class="py-5">

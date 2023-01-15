@@ -42,9 +42,11 @@ include('./dbcon.php');
                         </div>
                             <div style="width: 200px;">
                             <ul class="list-group list-group-flush">
-                                <li class="list-group-item"><strong>Preço:</strong> <?= $row["price"]?></li>
-                                <li class="list-group-item"><strong>Estado:</strong> <?= $row["state"]?></li>
+                                <li class="list-group-item"><strong>Preço:</strong> <?= $row["price"]?>€</li>
                                 <li class="list-group-item"><strong>Gênero:</strong> <?= $row["category"]?></li>
+                                <?php  if(isset($_SESSION['authenticated'])): ?>
+                                    <li class="list-group-item"><strong>Estado:</strong> <?= $row["state"]?></li>
+                                <?php endif ?>
                             </ul>
                             </div>
                             <?php  if(isset($_SESSION['authenticated']) &&  $row["state"] == "Indisponível"): ?>

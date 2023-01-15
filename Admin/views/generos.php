@@ -80,7 +80,7 @@ include('../../check-session.php');
     
       <div class="modal-content">
         <div class="modal-header">
-          <h4 class="modal-title">Novo Filme</h4>
+          <h4 class="modal-title">Novo género</h4>
           <button type="button" class="close" data-bs-dismiss="modal">&times;</button>
         </div>
         <div class="modal-body">

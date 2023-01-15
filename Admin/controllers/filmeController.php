@@ -105,9 +105,6 @@
                     $query = $con->prepare("UPDATE filmes SET name=?, description=?, price=?, category=?, state=?, image=? WHERE id=?");
                     $query -> bind_param('ssisssi', $name, $description, $price, $category, $state, $imgContent, $id);
                     
-                    // $update_filme_query = "UPDATE filmes SET name='$name', description='$description', price='$price', category='$category', state='$state', image='$imgContent' WHERE id='$id'"; 
-                    // $update_filme_query_run = mysqli_query($con, $update_filme_query);
-
                     if($query -> execute())
                     {
                         $_SESSION['status'] = "Filme editado com sucesso!";

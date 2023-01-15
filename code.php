@@ -42,7 +42,6 @@ function send_email_verify ($name, $email, $verify_token)
 
     $mail->Body = $email_template;
     $mail->send();
-    // echo 'O email de verificação foi enviado!'; 
 
 }
 
@@ -123,11 +122,9 @@ if (isset($_POST['registerBtn']))
 
     $pattern_nome =  '/^[A-Za-z]{3,}$/';
 
-    // Existe email
-    // $check_email_query = "SELECT email FROM users WHERE email = '$email' LIMIT 1";
-    // $check_email_query_run = mysqli_query($con, $check_email_query);
+    
 
-    $query = $con -> prepare("SELECT email FROM users WHERE email = ? LIMIT 1");
+    $query = $con -> prepare("SELECT email FROM users WHERE email = ? ");
     $query -> bind_param('s', $email);
     $query -> execute();
     $query -> store_result();
@@ -228,88 +225,46 @@ if (isset($_POST['registerBtn']))
 // Login
 else if (isset($_POST['loginBtn'])) 
 {
-
-    //se tiver logado vai para dashboard
-    if(isset($_SESSION['authenticated']))
-    {
-        $_SESSION['status'] = "está logado.";
-        header("Location: dashboard.php");
-        exit(0); 
-    }
-
     if(!empty(trim($_POST['email'])) && !empty(trim($_POST['password'])))
     {
         $email = $_POST['email'];
         $password = md5($_POST['password']);
 
-        $check_email =  $con -> prepare("SELECT email FROM users WHERE email= ?");
-        $check_email -> bind_param('s', $email);
-        $check_email -> execute();
-        $check_email -> store_result();
-
-        if($check_email -> num_rows > 0)
+        if(!filter_var($email, FILTER_VALIDATE_EMAIL))
         {
-            $check_email -> close();
+            $_SESSION['status'] = "O email introduzido é inválido";
+            header("Location: dashboard.php");
+            exit(0); 
+        }
+        else
+        {
 
-            $login_query = $con -> prepare("SELECT name, email, image, verify_status, role FROM users WHERE email= ? AND password= ?");
-            $login_query -> bind_param('ss', $email, $password);
-            $login_query -> execute();
-            $login_query -> store_result();
-            $login_query -> bind_result($name, $email, $image, $verify_status, $role);
-            $login_query->fetch();
+            $check_email =  $con -> prepare("SELECT email FROM users WHERE email= ?");
+            $check_email -> bind_param('s', $email);
+            $check_email -> execute();
+            $check_email -> store_result();
 
-            if($login_query -> num_rows > 0)
+            if($check_email -> num_rows > 0)
             {
-                $is_blocked = $con -> prepare("SELECT blocked FROM users WHERE email= ?");
-                $is_blocked -> bind_param('s', $email);
-                $is_blocked -> execute();
-                $is_blocked -> store_result();
-                $is_blocked -> bind_result($blocked);
-                $is_blocked -> fetch();
+                $check_email -> close();
 
-                if($blocked == NULL)
+                $login_query = $con -> prepare("SELECT name, email, image, verify_status, role FROM users WHERE email= ? AND password= ?");
+                $login_query -> bind_param('ss', $email, $password);
+                $login_query -> execute();
+                $login_query -> store_result();
+                $login_query -> bind_result($name, $email, $image, $verify_status, $role);
+                $login_query->fetch();
+
+                if($login_query -> num_rows > 0)
                 {
-                    if($verify_status == 1)
-                    {
-                        $login_query -> close();
+                    $is_blocked = $con -> prepare("SELECT blocked FROM users WHERE email= ?");
+                    $is_blocked -> bind_param('s', $email);
+                    $is_blocked -> execute();
+                    $is_blocked -> store_result();
+                    $is_blocked -> bind_result($blocked);
+                    $is_blocked -> fetch();
 
-                        $_SESSION['authenticated'] = TRUE;
-                        $_SESSION['auth_user'] = [
-                            'name' => $name,
-                            'email' => $email,
-                            'image' => $image,
-                            'role' => $role,
-                        ];
-
-                        if(isset($_REQUEST['rememberMe']))
-                        {
-                            $_SESSION['email'] = $email;
-                            $_SESSION['start_time'] = time();
-                        }
-
-                        $clear_errors = $con -> prepare("UPDATE users SET count_erros = 0, blocked = NULL WHERE email = ?");
-                        $clear_errors -> bind_param('s', $email);
-                        $clear_errors -> execute();
-                        $clear_errors -> close();
-
-                        $_SESSION['status'] = "Login com sucesso!";
-                        header("Location: dashboard.php");
-                        exit(0); 
-                    }
-                    else
-                    {
-                        $login_query -> close();
-
-                        $_SESSION['status'] = "Verifique o seu email para fazer o login";
-                        header("Location: login.php");
-                        exit(0);                
-                    }
-                }
-                else
-                {
-                    // $date = date("Y-m-d H:i:s");
-// (strtotime($date) - strtotime($blocked) - 3600) > 10
-                    if((strtotime(date("Y-m-d H:i:s")) - strtotime($blocked) - 3600) > 10)
+                    if($blocked == NULL)
                     {
                         if($verify_status == 1)
                         {
@@ -349,64 +304,105 @@ else if (isset($_POST['loginBtn']))
                     }
                     else
                     {
-                        $_SESSION['status'] = "A sua conta está temporáriamente bloqueada, aguarde...";
+                        if((strtotime(date("Y-m-d H:i:s")) - strtotime($blocked) - 3600) > 60*60)
+                        {
+                            if($verify_status == 1)
+                            {
+                                $login_query -> close();
+
+                                $_SESSION['authenticated'] = TRUE;
+                                $_SESSION['auth_user'] = [
+                                    'name' => $name,
+                                    'email' => $email,
+                                    'image' => $image,
+                                    'role' => $role,
+                                ];
+
+                                if(isset($_REQUEST['rememberMe']))
+                                {
+                                    $_SESSION['email'] = $email;
+                                    $_SESSION['start_time'] = time();
+                                }
+
+                                $clear_errors = $con -> prepare("UPDATE users SET count_erros = 0, blocked = NULL WHERE email = ?");
+                                $clear_errors -> bind_param('s', $email);
+                                $clear_errors -> execute();
+                                $clear_errors -> close();
+
+                                $_SESSION['status'] = "Login com sucesso!";
+                                header("Location: dashboard.php");
+                                exit(0); 
+                            }
+                            else
+                            {
+                                $login_query -> close();
+
+                                $_SESSION['status'] = "Verifique o seu email para fazer o login";
+                                header("Location: login.php");
+                                exit(0);                
+                            }
+                        }
+                        else
+                        {
+                            $_SESSION['status'] = "A sua conta está temporáriamente bloqueada, aguarde...";
+                            header("Location: login.php");
+                            exit(0);    
+                        }
+                    }
+                }
+                else
+                {
+                    $get_user = $con -> prepare("SELECT count_erros FROM users WHERE email = ?");
+                    $get_user -> bind_param('s', $email);
+                    $get_user -> execute();
+                    $get_user -> store_result();
+                    $get_user -> bind_result($count);
+                    $get_user -> fetch();
+
+                    $new_count = $count + 1;
+
+                    if($new_count < 5)
+                    {
+                        //adicionar um erro count_erros
+
+                        $add_error = $con -> prepare("UPDATE users SET count_erros = ? WHERE email = ? ");
+                        $add_error -> bind_param('is', $new_count, $email);
+                        $add_error -> execute();
+                        $add_error -> close();
+                        
+                        $_SESSION['status'] = "Credenciais inválidas, tem $new_count erros. Máximo: 5";
                         header("Location: login.php");
-                        exit(0);    
+                        exit(0);
+                    }
+                    else
+                    {
+                        // Bloquear a conta temporáriamente 
+
+                        $update_count = $con -> prepare("UPDATE users SET count_erros = ?, blocked = CURRENT_TIMESTAMP() WHERE email = ?");
+                        $update_count -> bind_param('is', $new_count, $email);
+                        $update_count -> execute();
+                        $update_count -> close();
+
+                        //Enviar email de aviso ao user bloqueado e admin
+
+                        send_email_block_account("$email");
+
+                        $_SESSION['status'] = "Conta bloqueada! Máximo de erros atingido!";
+                        header("Location: login.php");
+                        exit(0);
                     }
                 }
             }
             else
             {
-                $get_user = $con -> prepare("SELECT count_erros FROM users WHERE email = ?");
-                $get_user -> bind_param('s', $email);
-                $get_user -> execute();
-                $get_user -> store_result();
-                $get_user -> bind_result($count);
-                $get_user -> fetch();
+                $check_email -> close();
 
-                $new_count = $count + 1;
-
-                if($new_count < 5)
-                {
-                    //adicionar um erro count_erros
-
-                    $add_error = $con -> prepare("UPDATE users SET count_erros = ? WHERE email = ? ");
-                    $add_error -> bind_param('is', $new_count, $email);
-                    $add_error -> execute();
-                    $add_error -> close();
-                    
-                    $_SESSION['status'] = "Credenciais inválidas";
-                    header("Location: login.php");
-                    exit(0);
-                }
-                else
-                {
-                    // Bloquear a conta temporáriamente 
-
-                    $update_count = $con -> prepare("UPDATE users SET count_erros = ?, blocked = CURRENT_TIMESTAMP() WHERE email = ?");
-                    $update_count -> bind_param('is', $new_count, $email);
-                    $update_count -> execute();
-                    $update_count -> close();
-
-                    //Enviar email de aviso ao user bloqueado e admin
-
-                    send_email_block_account("$email");
-
-                    $_SESSION['status'] = "Conta bloqueada! Muitos erros!";
-                    header("Location: login.php");
-                    exit(0);
-                }
+                $_SESSION['status'] = "Não existe uma conta com este email";
+                header("Location: register.php");
+                exit(0);
             }
         }
-        else
-        {
-            $check_email -> close();
-
-            $_SESSION['status'] = "Não existe uma conta com este email";
-            header("Location: register.php");
-            exit(0);
-        }
-    }
+    }   
     else
     {
         $_SESSION['status'] = "Todos os campos são obrigatórios";
@@ -534,9 +530,7 @@ else if (isset($_POST['reset_pass_btn']))
             $check_token -> store_result();
             $check_token -> bind_result($verify_token);
             $check_token -> fetch();
-            //Verificação do token
-            // $check_token ="SELECT verify_token FROM users WHERE verify_token='$token'";
-            // $check_token_run = mysqli_query($con, $check_token);
+            
 
             if($check_token -> num_rows > 0)
             {
@@ -545,9 +539,6 @@ else if (isset($_POST['reset_pass_btn']))
                     $update_pasword = $con -> prepare("UPDATE users SET password= ? WHERE verify_token = ?");
                     $update_pasword -> bind_param('ss', $new_password, $token);
                     
-
-                    // $update_password = "UPDATE users SET password='$new_password' WHERE verify_token='$token' LIMIT 1";
-                    // $update_password_run = mysqli_query($con, $update_password);
 
                     if($update_pasword -> execute())
                     {
@@ -559,8 +550,6 @@ else if (isset($_POST['reset_pass_btn']))
                         $update_to_new_token -> execute();
                         $update_to_new_token -> close();
 
-                            // $update_to_new_token = "UPDATE users SET verify_token='$new_token' WHERE verify_token='$token' LIMIT 1";
-                            // $update_to_new_token_run = mysqli_query($con, $update_to_new_token);
 
                         $_SESSION['status'] = "Password alterada com sucesso";
                         header("Location: login.php");

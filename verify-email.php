@@ -14,10 +14,11 @@ if(isset($_GET['token']))
         if($row['verify_status'] == "0")
         {
             $clicked_token = $row['verify_token'];
-            $update_query = "UPDATE users SET verify_status = '1' WHERE verify_token = '$clicked_token' LIMIT 1";
-            $update_query_run = mysqli_query($con, $update_query);
 
-            if($update_query_run)
+            $update_query = $con -> prepare("UPDATE users SET verify_status = '1' WHERE verify_token = ?");
+            $update_query -> bind_param('s', $clicked_token);
+
+            if($update_query -> execute())
             {
                 $_SESSION['status'] = "Verificado com sucesso";
                 header("Location: login.php");

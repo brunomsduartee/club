@@ -17,9 +17,6 @@
             $genero_query = $con -> prepare("INSERT INTO generos (name) VALUES (?)");
             $genero_query -> bind_param('s', $gen_name);
 
-            // $genero_query = "INSERT INTO generos (name) VALUES ('$gen_name')"; 
-            // $genero_query_run = mysqli_query($con, $genero_query);
-
             if($genero_query -> execute())
             {
                 $_SESSION['status'] = "Gênero adicionado com sucesso!";
